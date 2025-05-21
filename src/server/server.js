@@ -2,100 +2,199 @@
 const express = require('express');
 const cors = require('cors');
 const { connectToDatabase, client } = require('./mongodb');
+const { ObjectId } = require('mongodb');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB when server starts
+// Database connection
 let db;
+
+// Connect to MongoDB
 connectToDatabase()
-  .then(database => {
+  .then((database) => {
     db = database;
-    console.log("Database connection established");
+    console.log('Connected to MongoDB');
   })
-  .catch(err => {
-    console.error("Failed to connect to database", err);
+  .catch((err) => {
+    console.error('Failed to connect to MongoDB', err);
   });
 
-// API endpoint to fetch meetings
+// AI summarization function (mock for now, would integrate with OpenAI API in production)
+async function generateMeetingSummary(transcript) {
+  // This would be replaced with an actual API call to OpenAI or other AI service
+  console.log("Generating summary for transcript:", transcript.substring(0, 50) + "...");
+  
+  // Mock AI summary generation
+  const summary = `Summary of meeting discussing ${transcript.substring(0, 20)}...`;
+  
+  // Mock task extraction
+  const tasks = [
+    {
+      title: `Review ${transcript.substring(0, 10)}`,
+      dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0]  // Tomorrow
+    },
+    {
+      title: `Follow up on ${transcript.substring(20, 30)}`,
+      dueDate: new Date(Date.now() + 172800000).toISOString().split('T')[0]  // Day after tomorrow
+    }
+  ];
+  
+  return { summary, tasks };
+}
+
+// API Routes
+
+// Get all meetings
 app.get('/api/meetings', async (req, res) => {
   try {
-    const meetings = await db.collection('meetings').find({}).toArray();
+    const meetings = await db.collection('meetings').find().sort({ date: -1 }).toArray();
     res.json(meetings);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching meetings", error: error.message });
+    console.error('Error fetching meetings:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// API endpoint to add a meeting
+// Get a single meeting
+app.get('/api/meetings/:id', async (req, res) => {
+  try {
+    const meeting = await db.collection('meetings').findOne({ _id: new ObjectId(req.params.id) });
+    if (!meeting) {
+      return res.status(404).json({ message: 'Meeting not found' });
+    }
+    res.json(meeting);
+  } catch (error) {
+    console.error('Error fetching meeting:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Create a new meeting with AI summary
 app.post('/api/meetings', async (req, res) => {
   try {
-    const { title, date, summary, tasks } = req.body;
-    const result = await db.collection('meetings').insertOne({
+    const { title, transcript, date } = req.body;
+    
+    // Generate AI summary and extract tasks
+    const { summary, tasks } = await generateMeetingSummary(transcript || '');
+    
+    // Create new meeting
+    const newMeeting = {
       title,
-      date,
+      date: date || new Date().toISOString(),
       summary,
-      tasks: tasks || [],
+      transcript: transcript || '',
       createdAt: new Date()
-    });
-    res.status(201).json(result);
+    };
+    
+    // Insert meeting
+    const result = await db.collection('meetings').insertOne(newMeeting);
+    
+    // Add extracted tasks with reference to meeting
+    if (tasks && tasks.length > 0) {
+      const tasksWithMeetingId = tasks.map(task => ({
+        ...task,
+        meetingId: result.insertedId.toString(),
+        completed: false,
+        createdAt: new Date()
+      }));
+      
+      await db.collection('tasks').insertMany(tasksWithMeetingId);
+    }
+    
+    // Return the created meeting
+    const createdMeeting = await db.collection('meetings').findOne({ _id: result.insertedId });
+    res.status(201).json(createdMeeting);
   } catch (error) {
-    res.status(500).json({ message: "Error adding meeting", error: error.message });
+    console.error('Error creating meeting:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// API endpoint to get tasks
+// Get all tasks
 app.get('/api/tasks', async (req, res) => {
   try {
-    const tasks = await db.collection('tasks').find({}).toArray();
+    const tasks = await db.collection('tasks').find().sort({ dueDate: 1 }).toArray();
     res.json(tasks);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching tasks", error: error.message });
+    console.error('Error fetching tasks:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// API endpoint to add a task
+// Create a new task
 app.post('/api/tasks', async (req, res) => {
   try {
     const { title, dueDate, meetingId } = req.body;
-    const result = await db.collection('tasks').insertOne({
+    
+    const newTask = {
       title,
       dueDate,
-      completed: false,
       meetingId,
+      completed: false,
       createdAt: new Date()
-    });
-    res.status(201).json(result);
+    };
+    
+    const result = await db.collection('tasks').insertOne(newTask);
+    const createdTask = await db.collection('tasks').findOne({ _id: result.insertedId });
+    
+    res.status(201).json(createdTask);
   } catch (error) {
-    res.status(500).json({ message: "Error adding task", error: error.message });
+    console.error('Error creating task:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// API endpoint to mark a task as complete
+// Update a task (toggle completion, etc)
 app.patch('/api/tasks/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { completed } = req.body;
+    const updates = req.body;
+    
     const result = await db.collection('tasks').updateOne(
-      { _id: new require('mongodb').ObjectId(id) },
-      { $set: { completed } }
+      { _id: new ObjectId(id) },
+      { $set: updates }
     );
-    res.json(result);
+    
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+    
+    const updatedTask = await db.collection('tasks').findOne({ _id: new ObjectId(id) });
+    res.json(updatedTask);
   } catch (error) {
-    res.status(500).json({ message: "Error updating task", error: error.message });
+    console.error('Error updating task:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Add cleanup for MongoDB connection when server shuts down
-process.on('SIGINT', async () => {
-  await client.close();
-  console.log('MongoDB connection closed');
-  process.exit(0);
+// Smart Reminders Setup - Mock endpoint for setting up email/Slack reminders
+app.post('/api/reminders', async (req, res) => {
+  try {
+    const { taskId, type, destination } = req.body;
+    
+    // In production, this would connect to email service or Slack API
+    // For now, we just save the reminder preferences
+    
+    await db.collection('reminders').insertOne({
+      taskId,
+      type, // 'email' or 'slack'
+      destination, // email address or slack channel
+      createdAt: new Date()
+    });
+    
+    res.status(201).json({ message: 'Reminder setup successfully' });
+  } catch (error) {
+    console.error('Error setting up reminder:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

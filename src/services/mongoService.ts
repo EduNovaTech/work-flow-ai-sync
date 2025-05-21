@@ -6,6 +6,7 @@ interface Meeting {
   title: string;
   date: string;
   summary: string;
+  transcript?: string;
   tasks?: Task[];
   createdAt?: Date;
 }
@@ -16,6 +17,12 @@ interface Task {
   dueDate?: string;
   completed?: boolean;
   meetingId?: string;
+}
+
+interface Reminder {
+  taskId: string;
+  type: 'email' | 'slack';
+  destination: string;
 }
 
 const API_URL = "http://localhost:5000/api";
@@ -34,7 +41,7 @@ export const fetchMeetings = async (): Promise<Meeting[]> => {
   }
 };
 
-export const addMeeting = async (meeting: Omit<Meeting, '_id' | 'createdAt'>): Promise<Meeting> => {
+export const addMeeting = async (meeting: { title: string; transcript: string; date?: string }): Promise<Meeting> => {
   try {
     const response = await fetch(`${API_URL}/meetings`, {
       method: 'POST',
@@ -48,11 +55,11 @@ export const addMeeting = async (meeting: Omit<Meeting, '_id' | 'createdAt'>): P
       throw new Error('Failed to add meeting');
     }
     
-    toast.success("Meeting added successfully");
+    toast.success("Meeting processed successfully");
     return await response.json();
   } catch (error) {
     console.error("Error adding meeting:", error);
-    toast.error("Failed to add meeting");
+    toast.error("Failed to process meeting");
     throw error;
   }
 };
@@ -112,6 +119,28 @@ export const toggleTaskCompletion = async (id: string, completed: boolean): Prom
   } catch (error) {
     console.error("Error updating task:", error);
     toast.error("Failed to update task");
+    throw error;
+  }
+};
+
+export const setupReminder = async (reminder: Reminder): Promise<void> => {
+  try {
+    const response = await fetch(`${API_URL}/reminders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(reminder),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to set up reminder');
+    }
+    
+    toast.success(`${reminder.type === 'email' ? 'Email' : 'Slack'} reminder set up successfully`);
+  } catch (error) {
+    console.error("Error setting up reminder:", error);
+    toast.error("Failed to set up reminder");
     throw error;
   }
 };
