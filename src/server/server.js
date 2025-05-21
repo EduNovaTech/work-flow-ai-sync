@@ -57,6 +57,38 @@ app.get('/api/tasks', async (req, res) => {
   }
 });
 
+// API endpoint to add a task
+app.post('/api/tasks', async (req, res) => {
+  try {
+    const { title, dueDate, meetingId } = req.body;
+    const result = await db.collection('tasks').insertOne({
+      title,
+      dueDate,
+      completed: false,
+      meetingId,
+      createdAt: new Date()
+    });
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).json({ message: "Error adding task", error: error.message });
+  }
+});
+
+// API endpoint to mark a task as complete
+app.patch('/api/tasks/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { completed } = req.body;
+    const result = await db.collection('tasks').updateOne(
+      { _id: new require('mongodb').ObjectId(id) },
+      { $set: { completed } }
+    );
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating task", error: error.message });
+  }
+});
+
 // Add cleanup for MongoDB connection when server shuts down
 process.on('SIGINT', async () => {
   await client.close();

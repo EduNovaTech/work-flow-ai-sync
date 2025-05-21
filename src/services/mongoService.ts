@@ -70,3 +70,48 @@ export const fetchTasks = async (): Promise<Task[]> => {
     return [];
   }
 };
+
+export const addTask = async (task: Omit<Task, '_id' | 'createdAt'>): Promise<Task> => {
+  try {
+    const response = await fetch(`${API_URL}/tasks`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(task),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to add task');
+    }
+    
+    toast.success("Task added successfully");
+    return await response.json();
+  } catch (error) {
+    console.error("Error adding task:", error);
+    toast.error("Failed to add task");
+    throw error;
+  }
+};
+
+export const toggleTaskCompletion = async (id: string, completed: boolean): Promise<void> => {
+  try {
+    const response = await fetch(`${API_URL}/tasks/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ completed }),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to update task');
+    }
+    
+    toast.success("Task updated successfully");
+  } catch (error) {
+    console.error("Error updating task:", error);
+    toast.error("Failed to update task");
+    throw error;
+  }
+};
