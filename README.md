@@ -1,73 +1,68 @@
-# Welcome to your Lovable project
 
-## Project info
+# WorkWise - AI Powered Meeting Assistant
 
-**URL**: https://lovable.dev/projects/21b8929f-ba57-4004-9e56-ff9bfa9a0388
+WorkWise is an AI-powered meeting assistant that helps teams extract value from their meetings through automated summaries, task extraction, and smart reminders.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **AI Meeting Summaries**: Upload or record meetings and get smart, concise summaries powered by AI
+- **Task Extraction**: AI automatically identifies and extracts tasks and due dates from meetings and notes
+- **Smart Reminders**: Get timely reminders for upcoming tasks via email or Slack integration
+- **Team Dashboard**: View all your tasks, files, and meeting summaries in one organized workspace
 
-**Use Lovable**
+## Setup Instructions
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/21b8929f-ba57-4004-9e56-ff9bfa9a0388) and start prompting.
+### 1. MongoDB Setup
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Create a MongoDB Atlas account or use your existing one at [https://www.mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
+2. Create a new cluster or use an existing one
+3. In the MongoDB Atlas dashboard, click on "Connect" for your cluster
+4. Choose "Connect your application" and copy the connection string
+5. Replace the placeholder in the connection string with your actual username and password
 
-**Use your preferred IDE**
+### 2. Configure Environment
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Create a `.env` file in the project root with the following content:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```
+MONGODB_URI=your_mongodb_connection_string_here
+PORT=5000
+```
 
-Follow these steps:
+Replace `your_mongodb_connection_string_here` with the connection string you copied from MongoDB Atlas.
+
+### 3. Install Dependencies
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Install the required dependencies
+npm install
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 4. Run the Application
 
-# Step 3: Install the necessary dependencies.
-npm i
+```sh
+# Start the backend server
+node src/server/server.js
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# In a separate terminal, start the frontend
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Project Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- `src/server`: Contains the backend server and MongoDB connection
+- `src/services`: API service functions for data fetching
+- `src/components`: React components including the MeetingDashboard
 
-**Use GitHub Codespaces**
+## Troubleshooting
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- If you see database connection errors, ensure your MongoDB connection string is correct and your network allows the connection
+- Make sure both frontend and backend are running simultaneously
+- Check console logs for any errors during startup
 
-## What technologies are used for this project?
+## Extending the Application
 
-This project is built with:
+- Add authentication for user management
+- Integrate with calendar applications
+- Implement real-time collaborative features
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/21b8929f-ba57-4004-9e56-ff9bfa9a0388) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
