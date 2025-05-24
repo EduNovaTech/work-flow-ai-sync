@@ -1,8 +1,8 @@
 
-const express = require('express');
-const cors = require('cors');
-const { connectToDatabase, client } = require('./mongodb');
-const { ObjectId } = require('mongodb');
+import express from 'express';
+import cors from 'cors';
+import { connectToDatabase, client } from './mongodb.js';
+import { ObjectId } from 'mongodb';
 
 const app = express();
 const PORT = process.env.PORT || 5000;

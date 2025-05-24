@@ -1,5 +1,5 @@
 
-const { MongoClient } = require('mongodb');
+import { MongoClient } from 'mongodb';
 
 // MongoDB Atlas connection string - using MONGO_URI to match your .env file
 const uri = process.env.MONGO_URI || "mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/workwise?retryWrites=true&w=majority";
@@ -24,4 +24,4 @@ async function connectToDatabase() {
   }
 }
 
-module.exports = { connectToDatabase, client };
+export { connectToDatabase, client };
