@@ -16,7 +16,62 @@ WorkWise is an AI-powered meeting assistant that helps teams extract value from 
 - MongoDB Atlas account
 - npm or yarn package manager
 
-## Setup Instructions
+## Quick Start (Your Configuration)
+
+Since you already have your MongoDB cluster set up, follow these steps:
+
+### 1. Install Dependencies
+```bash
+npm install
+```
+
+### 2. Start the Backend Server
+```bash
+node src/server/server.js
+```
+
+### 3. Start the Frontend (in a new terminal)
+```bash
+npm run dev
+```
+
+### 4. Access the Application
+- Backend API: [http://localhost:5000](http://localhost:5000)
+- Frontend: [http://localhost:5173](http://localhost:5173) (or the port shown in your terminal)
+
+## Your Current Configuration
+
+Your `.env` file is already configured with:
+```
+MONGO_URI=mongodb+srv://edunovatech2024:Sasi123@cluster0.jpemwgd.mongodb.net/test?retryWrites=true&w=majority
+PORT=5000
+```
+
+## API Endpoints
+
+- `GET /api/meetings` - Fetch all meetings
+- `POST /api/meetings` - Create a new meeting with AI summary
+- `GET /api/tasks` - Fetch all tasks
+- `POST /api/tasks` - Create a new task
+- `PATCH /api/tasks/:id` - Update a task
+- `POST /api/reminders` - Set up email/Slack reminders
+
+## Project Structure
+
+```
+src/
+├── server/
+│   ├── server.js          # Express server with API endpoints
+│   └── mongodb.js         # MongoDB connection configuration
+├── services/
+│   └── mongoService.ts    # Frontend API service functions
+├── components/
+│   └── MeetingDashboard.tsx # Main dashboard component
+└── pages/
+    └── Index.tsx          # Main page component
+```
+
+## Complete Setup Instructions (For New Users)
 
 ### 1. MongoDB Atlas Setup
 
@@ -55,7 +110,7 @@ WorkWise is an AI-powered meeting assistant that helps teams extract value from 
 1. **Create Environment File**
    Create a `.env` file in the project root directory:
    ```
-   MONGODB_URI=mongodb+srv://your_username:your_password@cluster0.xxxxx.mongodb.net/workwise?retryWrites=true&w=majority
+   MONGO_URI=mongodb+srv://your_username:your_password@cluster0.xxxxx.mongodb.net/workwise?retryWrites=true&w=majority
    PORT=5000
    ```
 
@@ -88,13 +143,13 @@ npm run dev
 
 ```bash
 # Windows (Command Prompt)
-set MONGODB_URI=mongodb+srv://your_username:your_password@cluster0.xxxxx.mongodb.net/workwise?retryWrites=true&w=majority && node src/server/server.js
+set MONGO_URI=mongodb+srv://your_username:your_password@cluster0.xxxxx.mongodb.net/workwise?retryWrites=true&w=majority && node src/server/server.js
 
 # Windows (PowerShell)
-$env:MONGODB_URI="mongodb+srv://your_username:your_password@cluster0.xxxxx.mongodb.net/workwise?retryWrites=true&w=majority"; node src/server/server.js
+$env:MONGO_URI="mongodb+srv://your_username:your_password@cluster0.xxxxx.mongodb.net/workwise?retryWrites=true&w=majority"; node src/server/server.js
 
 # macOS/Linux
-MONGODB_URI="mongodb+srv://your_username:your_password@cluster0.xxxxx.mongodb.net/workwise?retryWrites=true&w=majority" node src/server/server.js
+MONGO_URI="mongodb+srv://your_username:your_password@cluster0.xxxxx.mongodb.net/workwise?retryWrites=true&w=majority" node src/server/server.js
 ```
 
 ### 5. Verify Setup
@@ -106,30 +161,6 @@ MONGODB_URI="mongodb+srv://your_username:your_password@cluster0.xxxxx.mongodb.ne
 2. **Frontend Verification**
    - Open [http://localhost:5173](http://localhost:5173) (or the port shown in your terminal)
    - You should see the WorkWise dashboard
-
-## Project Structure
-
-```
-src/
-├── server/
-│   ├── server.js          # Express server with API endpoints
-│   └── mongodb.js         # MongoDB connection configuration
-├── services/
-│   └── mongoService.ts    # Frontend API service functions
-├── components/
-│   └── MeetingDashboard.tsx # Main dashboard component
-└── pages/
-    └── Index.tsx          # Main page component
-```
-
-## API Endpoints
-
-- `GET /api/meetings` - Fetch all meetings
-- `POST /api/meetings` - Create a new meeting with AI summary
-- `GET /api/tasks` - Fetch all tasks
-- `POST /api/tasks` - Create a new task
-- `PATCH /api/tasks/:id` - Update a task
-- `POST /api/reminders` - Set up email/Slack reminders
 
 ## Troubleshooting
 

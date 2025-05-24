@@ -1,12 +1,12 @@
 
 const { MongoClient } = require('mongodb');
 
-// MongoDB Atlas connection string - replace with your actual connection string
-const uri = process.env.MONGODB_URI || "mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/workwise?retryWrites=true&w=majority";
+// MongoDB Atlas connection string - using MONGO_URI to match your .env file
+const uri = process.env.MONGO_URI || "mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/workwise?retryWrites=true&w=majority";
 
-if (!process.env.MONGODB_URI) {
-  console.warn("WARNING: MONGODB_URI environment variable is not set. Please configure your MongoDB connection string.");
-  console.warn("Example: MONGODB_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/workwise?retryWrites=true&w=majority");
+if (!process.env.MONGO_URI) {
+  console.warn("WARNING: MONGO_URI environment variable is not set. Please configure your MongoDB connection string.");
+  console.warn("Example: MONGO_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/workwise?retryWrites=true&w=majority");
 }
 
 const client = new MongoClient(uri);
